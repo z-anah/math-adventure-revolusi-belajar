@@ -8,50 +8,66 @@ public class FighterStats : MonoBehaviour
 {
     public string Label;
     public double MaxHp = 100;
-    public double Hp;
+    public double Hp = 100;
     public Stat AttackDamage;
     public Stat AttackInterval;
 
     private TextMeshPro statText;
 
-    private void Awake()
+    private void Start()
     {
         statText = transform.Find("StatText").GetComponent<TextMeshPro>();
         Hp = MaxHp;
         StartCoroutine(Attack());
     }
-    private void Die()
+    private void OnEnable()
     {
-        Debug.Log("DIE :" + Label);
+
     }
-    public void Update()
+    public void UpdateGen()
     {
         statText.text = $"{Label}\nAttack damage: {AttackDamage.Value}\nAttack Interval: {AttackInterval.Value} sec\nHP: {Hp}/{MaxHp}";
-        if (Hp <= 0)
-        {
-            gameObject.SetActive(false);
-        }
     }
 
     IEnumerator Attack()
     {
+        yield return new WaitForSeconds((float)AttackInterval.Value);
         if (isActiveAndEnabled)
         {
             GameObject oToAttack = getClosetsFighter();
             if (oToAttack == null)
             {
-                Debug.Log("DONE !");
+                yield return StartCoroutine((nextGame()));
             }
             else
             {
                 FighterStats toAttack = oToAttack.GetComponent<FighterStats>();
-                Debug.Log($"{Label} ATTACK {toAttack.Label}");
-                toAttack.Hp -= AttackDamage.Value;
+                //Debug.Log($"{Label} ATTACK {toAttack.Label}");
+                if (toAttack.Hp > 0)
+                {
+                    toAttack.Hp -= AttackDamage.Value;
+                    if (toAttack.Hp <= 0) AttackDamage.Value += 5;
+                }
             }
-            yield return new WaitForSeconds((float)AttackInterval.Value);
-            StartCoroutine(Attack());
+            yield return StartCoroutine(Attack());
         }
     }
+
+    IEnumerator nextGame()
+    {
+        yield return new WaitForSeconds(0.5f);
+        GameSystem gs = GameObject.Find("GameSystem").GetComponent<GameSystem>();
+        if (transform.tag == "Hero")
+        {
+            gs.showResult("WON");
+        }
+        else
+        {
+            gs.showResult("LOST");
+        }
+        gs.NextGame();
+    }
+
 
     private GameObject getClosetsFighter()
     {
@@ -63,7 +79,11 @@ public class FighterStats : MonoBehaviour
         for (int i = 0; i < children; ++i)
         {
             GameObject item = team.transform.GetChild(i).gameObject;
-            if (item.activeSelf) fightersTeam.Add(item);
+            if (item.activeSelf)
+            {
+                Debug.Log($"{transform.tag} {item.name}");
+                fightersTeam.Add(item);
+            }
         }
         GameObject closetsFighter = null;
         foreach (GameObject item in fightersTeam)

@@ -13,4 +13,12 @@ public class EnemyStats : FighterStats
         AttackInterval.Value = 3;
         Label = "Enemy 1";
     }
+    private void Update()
+    {
+        UpdateGen();
+        if (Hp <= 0)
+        {
+            gameObject.SetActive(false);
+        }
+    }
 }

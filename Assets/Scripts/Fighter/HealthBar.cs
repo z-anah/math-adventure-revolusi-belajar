@@ -16,7 +16,8 @@ public class HealthBar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        localScale.x = (float)(fighterStats.Hp / fighterStats.MaxHp);
+        float hp = (float)(fighterStats.Hp / fighterStats.MaxHp);
+        localScale.x = hp;
         transform.localScale = localScale;
     }
 }

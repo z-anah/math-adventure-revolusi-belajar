@@ -13,4 +13,12 @@ public class HeroStats : FighterStats
         AttackInterval.Value = 3;
         Label = "Hero";
     }
+    private void Update()
+    {
+        UpdateGen();
+        if (Hp <= 0)
+        {
+            gameObject.SetActive(false);
+        }
+    }
 }
